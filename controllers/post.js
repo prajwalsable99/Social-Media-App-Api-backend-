@@ -145,3 +145,41 @@ exports.getPostsOfFollowing = async (req,res)=>{
         })
     }
 }
+
+
+exports.updatePost = async(req,res)=>{
+
+    try {
+        const post =await Post.findById(req.params.id);
+        if(!post){
+    
+            return res.status(404).json({
+                success: false,
+                message: "post not found",
+            })
+        }
+    
+        const curr_user=await User.findById(req.user._id);
+    
+        if(curr_user._id.toString()!==post.owner.toString()){
+            return res.status(401).json({
+                success: false,
+                message: "not valid owner",
+            })
+        }
+    
+        post.caption =req.body.caption;
+        await post.save();
+        return res.status(200).json({
+            success: true,
+            message: "caption updated successfully",
+        })
+    
+    } catch (error) {
+        
+        return res.status(500).json({
+            success:false,
+            message:error.message,
+        })
+    }
+}
